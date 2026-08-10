@@ -272,26 +272,6 @@
     document.querySelectorAll(".faq button").forEach(b=>b.addEventListener("click",()=>{const p=b.parentElement,o=p.classList.contains("open");document.querySelectorAll(".faq").forEach(x=>x.classList.remove("open"));if(!o)p.classList.add("open")}));
   </script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".faq button").forEach(function (button) {
-    button.addEventListener("click", function () {
-      var faq = button.closest(".faq");
-      var wasOpen = faq.classList.contains("open");
-
-      document.querySelectorAll(".faq").forEach(function (item) {
-        item.classList.remove("open");
-        var btn = item.querySelector("button");
-        if (btn) btn.setAttribute("aria-expanded", "false");
-      });
-
-      if (!wasOpen) {
-        faq.classList.add("open");
-        button.setAttribute("aria-expanded", "true");
-      }
-    });
-  });
-});
-</script><script>
 (function(){
   const modal=document.getElementById('checkoutModal'), form=document.getElementById('checkoutForm'), close=document.getElementById('checkoutClose');
   const ticketEl=document.getElementById('checkoutTicket'), priceEl=document.getElementById('checkoutPrice'), first=document.getElementById('checkoutFirst');
@@ -342,6 +322,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 </script>
-<div style="text-align:center;font:12px Arial,sans-serif;color:#777;padding:18px 8px 10px;">Reunion website v2026.08.10-02</div>
+<div style="text-align:center;font:12px Arial,sans-serif;color:#777;padding:18px 8px 10px;">Reunion website v2026.08.10-03</div>
 </body>
 </html>
