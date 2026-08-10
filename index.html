@@ -234,7 +234,41 @@
     const toast=document.getElementById("toast");let timer;function show(title,msg){toast.innerHTML="<b>"+title+"</b>"+msg;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),5000)}
     document.querySelectorAll(".ticket-pick").forEach(b=>b.addEventListener("click",()=>{document.getElementById("ticket").value=b.dataset.ticket;document.getElementById("rsvp").scrollIntoView();show("Ticket selected",b.dataset.ticket+" has been added to the RSVP form.")}));
     const oldRsvpForm=document.getElementById("rsvpForm");if(oldRsvpForm)oldRsvpForm.addEventListener("submit",e=>{e.preventDefault();});
-    document.getElementById("photos").addEventListener("change",e=>{const n=[...e.target.files].map(f=>f.name);document.getElementById("fileNames").textContent=n.length?n.length+" photo"+(n.length>1?"s":"")+" selected: "+n.join(", "):"";if(n.length)show("Photos selected","Preview only—files remain on your device until an upload service is connected.")});
+    document.getElementById("photos").addEventListener("change",async e=>{
+      const input=e.target;
+      const files=[...input.files];
+      const names=files.map(f=>f.name);
+      const status=document.getElementById("fileNames");
+      status.textContent=files.length?files.length+" photo"+(files.length>1?"s":"")+" selected: "+names.join(", "):"";
+      if(!files.length)return;
+
+      show("Uploading photos","Please wait while your photo"+(files.length>1?"s are":" is")+" uploaded.");
+      let uploaded=0;
+      try{
+        for(const file of files){
+          const formData=new FormData();
+          formData.append("file",file,file.name);
+          formData.append("fileName",file.name);
+          formData.append("fileType",file.type);
+          formData.append("uploadedAt",new Date().toISOString());
+
+          const response=await fetch("https://hook.us2.make.com/cxw2hftil0mijslktng6r91dhme2ahs3",{
+            method:"POST",
+            body:formData
+          });
+          if(!response.ok)throw new Error("Upload failed: "+response.status);
+          uploaded++;
+          status.textContent="Uploading "+uploaded+" of "+files.length+"…";
+        }
+        status.textContent=uploaded+" photo"+(uploaded>1?"s":"")+" uploaded successfully.";
+        show("Photos uploaded","Thank you! Your photo"+(uploaded>1?"s have":" has")+" been submitted for the reunion slideshow.");
+        input.value="";
+      }catch(err){
+        console.error(err);
+        status.textContent="Upload did not finish. Please try again.";
+        show("Upload problem","Your photo could not be uploaded. Please try again.");
+      }
+    });
     document.querySelectorAll(".faq button").forEach(b=>b.addEventListener("click",()=>{const p=b.parentElement,o=p.classList.contains("open");document.querySelectorAll(".faq").forEach(x=>x.classList.remove("open"));if(!o)p.classList.add("open")}));
   </script>
 <script>
@@ -308,5 +342,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 })();
 </script>
+<div style="text-align:center;font:12px Arial,sans-serif;color:#777;padding:18px 8px 10px;">Reunion website v2026.08.10-02</div>
 </body>
 </html>
