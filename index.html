@@ -287,8 +287,17 @@ document.addEventListener("DOMContentLoaded", function () {
     try{
       await fetch('https://hook.us2.make.com/qpik4jhbp0oniidb4m9z9nsl3yiw5wr5',{
         method:'POST',
-        headers:{'Content-Type':'text/plain;charset=UTF-8'},
-        body:JSON.stringify(registration)
+        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body:new URLSearchParams({
+          timestamp:registration.timestamp,
+          firstName:registration.firstName,
+          lastName:registration.lastName,
+          phone:registration.phone,
+          email:registration.email,
+          package:registration.package,
+          expectedTotal:registration.expectedTotal,
+          paymentStatus:registration.paymentStatus
+        }).toString()
       });
       window.location.href=squareUrl;
     }catch(err){
