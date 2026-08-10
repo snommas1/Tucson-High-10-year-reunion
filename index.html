@@ -266,7 +266,37 @@ document.addEventListener("DOMContentLoaded", function () {
   function closeCheckout(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
   document.querySelectorAll('.checkout-start').forEach(btn=>btn.addEventListener('click',()=>openCheckout(btn)));
   close.addEventListener('click',closeCheckout);modal.addEventListener('click',e=>{if(e.target===modal)closeCheckout()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeCheckout()});
-  form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;sessionStorage.setItem('thmsReunionRegistration',JSON.stringify({firstName:form.firstName.value.trim(),lastName:form.lastName.value.trim(),ticket:ticketEl.textContent,registeredAt:new Date().toISOString()}));window.location.href=squareUrl});
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!form.reportValidity())return;
+    const registration={
+      timestamp:new Date().toISOString(),
+      firstName:form.firstName.value.trim(),
+      lastName:form.lastName.value.trim(),
+      phone:form.phone.value.trim(),
+      email:form.email.value.trim(),
+      package:ticketEl.textContent,
+      expectedTotal:priceEl.textContent,
+      paymentStatus:'Pending'
+    };
+    sessionStorage.setItem('thmsReunionRegistration',JSON.stringify(registration));
+    const submitButton=form.querySelector('.checkout-submit');
+    const originalText=submitButton.textContent;
+    submitButton.disabled=true;
+    submitButton.textContent='Saving registration…';
+    try{
+      await fetch('https://hook.us2.make.com/qpik4jhbp0oniidb4m9z9nsl3yiw5wr5',{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=UTF-8'},
+        body:JSON.stringify(registration)
+      });
+      window.location.href=squareUrl;
+    }catch(err){
+      submitButton.disabled=false;
+      submitButton.textContent=originalText;
+      alert('We could not save your registration. Please check your connection and try again.');
+    }
+  });
 })();
 </script>
 </body>
