@@ -276,8 +276,29 @@
   const modal=document.getElementById('checkoutModal'), form=document.getElementById('checkoutForm'), close=document.getElementById('checkoutClose');
   const ticketEl=document.getElementById('checkoutTicket'), priceEl=document.getElementById('checkoutPrice'), first=document.getElementById('checkoutFirst');
   let squareUrl='';
-  function openCheckout(btn){squareUrl=btn.dataset.square;ticketEl.textContent=btn.dataset.ticket;priceEl.textContent=btn.dataset.price;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>first.focus(),50)}
-  function closeCheckout(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+  function hideCheckout(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+  function openCheckout(btn){
+    squareUrl=btn.dataset.square;
+    ticketEl.textContent=btn.dataset.ticket;
+    priceEl.textContent=btn.dataset.price;
+    if(!history.state || !history.state.checkoutModal){
+      history.pushState(Object.assign({},history.state,{checkoutModal:true}),'');
+    }
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    setTimeout(()=>first.focus(),50);
+  }
+  function closeCheckout(){
+    if(modal.classList.contains('open') && history.state && history.state.checkoutModal){
+      history.back();
+    }else{
+      hideCheckout();
+    }
+  }
+  window.addEventListener('popstate',()=>{
+    if(modal.classList.contains('open') && (!history.state || !history.state.checkoutModal))hideCheckout();
+  });
   document.querySelectorAll('.checkout-start').forEach(btn=>btn.addEventListener('click',()=>openCheckout(btn)));
   close.addEventListener('click',closeCheckout);modal.addEventListener('click',e=>{if(e.target===modal)closeCheckout()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeCheckout()});
   form.addEventListener('submit',async e=>{
@@ -313,6 +334,10 @@
           paymentStatus:registration.paymentStatus
         }).toString()
       });
+      if(history.state && history.state.checkoutModal){
+        history.replaceState(Object.assign({},history.state,{checkoutModal:false}),'');
+      }
+      hideCheckout();
       window.location.href=squareUrl;
     }catch(err){
       submitButton.disabled=false;
